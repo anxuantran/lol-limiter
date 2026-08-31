@@ -68,7 +68,7 @@ if [ "$locked" = "true" ]; then
     kill_all_league
     if [ "$was_notified" != "true" ]; then
       log "Relaunch attempt blocked while locked."
-      osascript -e "display notification \"Locked out for the rest of today ($DAILY_LIMIT/$DAILY_LIMIT games played).\" with title \"League Limiter\"" >/dev/null 2>&1
+      osascript -e "display dialog \"Nope — you're locked out for the rest of today ($DAILY_LIMIT/$DAILY_LIMIT games played).\n\nIt was closed again automatically. Try again tomorrow.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\" with icon caution" >/dev/null 2>&1
       write_state '.wasRunningWhileLocked = true'
     fi
   else
