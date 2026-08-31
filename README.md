@@ -43,7 +43,7 @@ No git clone needed — download and run the installer directly:
 
 ```
 curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash
-curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash -s -- 5   # custom limit
+curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash -s -- 3   # custom limit
 ```
 
 It downloads the repo to a temp dir, runs `install.sh`, and cleans up after
