@@ -3,6 +3,10 @@
   <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
 </p>
 
+<p align="center">
+  <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
+</p>
+
 A macOS tool that caps how many League of Legends matches you can play in a
 day. Once you hit the limit, it closes Riot Client + League Client + the
 game, and locks out relaunching until midnight.
