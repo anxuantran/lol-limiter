@@ -118,6 +118,7 @@ if [ "$locked" = "true" ]; then
         if [ "$btn" = "Override" ]; then
           write_state --arg t "$now_epoch" '.overridePendingSince = ($t | tonumber)'
           log "Override requested — ${OVERRIDE_WAIT_SECONDS}s timer started."
+          osascript -e "display dialog \"Override started. A passage prompt will appear in $((OVERRIDE_WAIT_SECONDS / 60)) minute(s) — it'll pop up on its own, you don't need to do anything until then.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\"" >/dev/null 2>&1
         fi
       fi
       write_state '.wasRunningWhileLocked = true'
