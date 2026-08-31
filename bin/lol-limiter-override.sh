@@ -11,14 +11,13 @@ STATE="$BASE/state.json"
 CONFIG="$BASE/config.sh"
 LOG="$BASE/limiter.log"
 
-log() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOG"
-}
-
 if [ ! -f "$STATE" ]; then
   echo "Missing $STATE — is lol-limiter installed? (run install.sh)" >&2
   exit 1
 fi
+
+# shellcheck source=common.sh
+source "$BASE/common.sh"
 
 # shellcheck source=/dev/null
 [ -f "$CONFIG" ] && source "$CONFIG"
@@ -26,6 +25,12 @@ OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-300}"
 
 now=$(date +%s)
 pending=$(jq -r '.overridePendingSince // 0' "$STATE")
+prompt_active=$(jq -r '.overridePromptActive // false' "$STATE")
+
+if [ "$prompt_active" = "true" ]; then
+  echo "A passage prompt is already open somewhere on screen — answer it to unlock."
+  exit 0
+fi
 
 if [ "$pending" -gt 0 ]; then
   remaining_min=$(( (OVERRIDE_WAIT_SECONDS - (now - pending) + 59) / 60 ))
@@ -33,6 +38,8 @@ if [ "$pending" -gt 0 ]; then
   exit 0
 fi
 
-jq --arg t "$now" '.overridePendingSince = ($t | tonumber)' "$STATE" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
+write_state --arg t "$now" '.overridePendingSince = ($t | tonumber)'
 log "Override timer started manually via CLI."
+nohup osascript -l JavaScript "$BASE/override-countdown.js" "$OVERRIDE_WAIT_SECONDS" "$now" >/dev/null 2>&1 &
+disown
 echo "Override timer started. A passage prompt will appear in $((OVERRIDE_WAIT_SECONDS / 60)) minutes."

@@ -36,9 +36,8 @@ RIOT_PATTERN="${RIOT_PATTERN:-/Riot Games/Riot Client.app/}"
 LOL_PATTERN="${LOL_PATTERN:-/League of Legends.app/}"
 OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-300}"
 
-log() {
-  echo "$(date '+%Y-%m-%d %H:%M:%S') $1" >> "$LOG"
-}
+# shellcheck source=common.sh
+source "$BASE/common.sh"
 
 today=$(date +%F)
 init_state='{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false, bonusGames:0, overridePendingSince:0, overridePromptActive:false}'
@@ -52,17 +51,6 @@ if [ "$state_date" != "$today" ]; then
   jq -n --arg d "$today" "$init_state" > "$STATE"
   log "New day ($today) — counters reset."
 fi
-
-write_state() {
-  jq "$@" "$STATE" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
-}
-
-normalize() {
-  local s="$1"
-  s="${s#"${s%%[![:space:]]*}"}"
-  s="${s%"${s##*[![:space:]]}"}"
-  printf '%s' "$s"
-}
 
 any_league_running() {
   pgrep -f "$RIOT_PATTERN" >/dev/null 2>&1 || pgrep -f "$LOL_PATTERN" >/dev/null 2>&1
