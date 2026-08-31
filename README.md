@@ -40,24 +40,6 @@ cd lol-limiter
 Requires macOS + [jq](https://jqlang.org) (installed automatically via
 Homebrew if missing).
 
-## Changing the limit
-
-Edit `~/Library/Application Support/lol-limiter/config.sh`:
-
-```sh
-DAILY_LIMIT=3
-LCU_LOCKFILE="/Applications/League of Legends.app/Contents/LoL/lockfile"
-```
-
-Changes take effect on the next poll (within ~5s) — no reinstall needed.
-
-## Uninstall
-
-```
-./uninstall.sh          # removes the background agent
-./uninstall.sh --purge  # also deletes state/config/logs
-```
-
 ## Notes
 
 - Only checked on stock macOS installs of League. If yours lives somewhere
@@ -66,7 +48,6 @@ Changes take effect on the next poll (within ~5s) — no reinstall needed.
 - State (today's game count, lock status) lives in
   `~/Library/Application Support/lol-limiter/state.json`. Logs are in the
   same directory (`limiter.log`, `launchd.out.log`, `launchd.err.log`).
-- This is a self-imposed limiter, not a security boundary — anyone willing
-  to edit `state.json` or unload the launchd agent
-  (`launchctl bootout gui/$(id -u)/com.lol-limiter.agent`) can bypass it.
-  It's friction against "just one more game," not a lock you can't pick.
+- This is a self-imposed limiter, not a security boundary — it's friction
+  against "just one more game," not a lock you can't pick.
+- Uninstalling or changing your limit: see `ADMIN.md`.
