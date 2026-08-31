@@ -69,14 +69,22 @@ if [ ! -f "$BASE/override-passage.txt" ]; then
   cp "$OVERRIDE_PASSAGE_SRC" "$BASE/override-passage.txt"
 fi
 
-cat > "$BASE/config.sh" <<EOF
+if [ ! -f "$BASE/config.sh" ]; then
+  cat > "$BASE/config.sh" <<EOF
 # lol-limiter config — edit and it takes effect on the next poll (~5s).
 DAILY_LIMIT=$DAILY_LIMIT
 LCU_LOCKFILE="$LCU_LOCKFILE"
+# Wait after clicking "Override" before the passage prompt appears (seconds).
+OVERRIDE_WAIT_SECONDS=300
 EOF
+else
+  # Preserve any hand-edited config, just make sure DAILY_LIMIT reflects
+  # what was requested this run (which itself defaults to the existing value).
+  sed -i '' -E "s/^DAILY_LIMIT=.*/DAILY_LIMIT=$DAILY_LIMIT/" "$BASE/config.sh"
+fi
 
 if [ ! -f "$BASE/state.json" ]; then
-  jq -n --arg d "$(date +%F)" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false, bonusGames:0}' > "$BASE/state.json"
+  jq -n --arg d "$(date +%F)" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false, bonusGames:0, overridePendingSince:0}' > "$BASE/state.json"
 fi
 
 # Unload any existing agent before (re)installing.
@@ -97,6 +105,9 @@ echo "  State/log:    $BASE"
 echo ""
 echo "It's running now, polling every 5s. To change the limit, edit"
 echo "  $BASE/config.sh"
-echo "To override the limit by one game (types a passage back exactly):"
-echo "  $BASE/lol-limiter-override.sh"
+echo ""
+echo "Once locked, relaunching shows a dialog with an Override option: click"
+echo "it (or run $BASE/lol-limiter-override.sh) to start a"
+echo "wait, after which a passage prompt appears — typing it back exactly"
+echo "grants one bonus game."
 echo "To uninstall: ./uninstall.sh"
