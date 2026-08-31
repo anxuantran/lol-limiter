@@ -11,9 +11,14 @@ function run(argv) {
   var passage = argv[0] || ""
 
   // Force to the front — osascript isn't a normal foreground app, so
-  // without this the alert can open behind other windows, unnoticed.
-  var app = $.NSRunningApplication.currentApplication
-  app.activateWithOptions($.NSApplicationActivateIgnoringOtherApps)
+  // without this the alert can open behind other windows, unnoticed. This
+  // is the standard JXA idiom for it (equivalent to AppleScript's
+  // `tell me to activate`), not the raw NSRunningApplication/NSApplication
+  // calls used before — those left the window frontmost but not key,
+  // which is why it couldn't take keyboard focus.
+  var se = Application.currentApplication()
+  se.includeStandardAdditions = true
+  se.activate()
 
   var alert = $.NSAlert.alloc.init
   alert.messageText = "Type the passage below exactly to unlock one more game"
@@ -37,7 +42,18 @@ function run(argv) {
   scrollView.borderType = $.NSBezelBorder
 
   alert.accessoryView = scrollView
-  alert.window.initialFirstResponder = textView
+  // makeFirstResponder is an imperative "focus this now"; the
+  // initialFirstResponder property this replaced is only a hint honored
+  // when a window becomes key on its own, which doesn't reliably apply to
+  // an accessory view wired up after the window already exists.
+  alert.window.makeFirstResponder(textView)
+  // macOS blocks background-launched processes from stealing keyboard
+  // focus from whatever app you're actually using (activate() above is
+  // best-effort and can be silently ignored) — that's a deliberate OS
+  // security boundary, not something to fight around. What IS guaranteed:
+  // a floating window stays visible on top of whatever else is on screen,
+  // and a real click from you is always allowed to focus it. So this
+  // floats above other windows and waits for you to click into it.
   alert.window.level = $.NSFloatingWindowLevel
 
   var response = alert.runModal
