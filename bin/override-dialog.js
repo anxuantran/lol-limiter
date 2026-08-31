@@ -10,6 +10,11 @@ ObjC.import('Cocoa')
 function run(argv) {
   var passage = argv[0] || ""
 
+  // Force to the front — osascript isn't a normal foreground app, so
+  // without this the alert can open behind other windows, unnoticed.
+  var app = $.NSRunningApplication.currentApplication
+  app.activateWithOptions($.NSApplicationActivateIgnoringOtherApps)
+
   var alert = $.NSAlert.alloc.init
   alert.messageText = "Type the passage below exactly to unlock one more game"
   alert.informativeText = passage
@@ -33,6 +38,7 @@ function run(argv) {
 
   alert.accessoryView = scrollView
   alert.window.initialFirstResponder = textView
+  alert.window.level = $.NSFloatingWindowLevel
 
   var response = alert.runModal
   var typed = ObjC.unwrap(textView.string)
