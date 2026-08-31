@@ -6,11 +6,22 @@
 
 set -euo pipefail
 
-DAILY_LIMIT="${1:-3}"
 BASE="$HOME/Library/Application Support/lol-limiter"
 LAUNCH_AGENT="$HOME/Library/LaunchAgents/com.lol-limiter.agent.plist"
-SCRIPT_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/bin/lol-limiter.sh"
-PLIST_TEMPLATE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/com.lol-limiter.plist.template"
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_SRC="$REPO_DIR/bin/lol-limiter.sh"
+OVERRIDE_SCRIPT_SRC="$REPO_DIR/bin/lol-limiter-override.sh"
+OVERRIDE_DIALOG_SRC="$REPO_DIR/bin/override-dialog.js"
+OVERRIDE_PASSAGE_SRC="$REPO_DIR/override-passage.txt"
+PLIST_TEMPLATE="$REPO_DIR/com.lol-limiter.plist.template"
+
+# Reuse a previously configured limit on reinstall/upgrade unless one is
+# passed explicitly, so `git pull && ./install.sh` doesn't silently reset it.
+EXISTING_LIMIT=""
+if [ -f "$BASE/config.sh" ]; then
+  EXISTING_LIMIT=$(grep -E '^DAILY_LIMIT=' "$BASE/config.sh" | head -1 | cut -d= -f2)
+fi
+DAILY_LIMIT="${1:-${EXISTING_LIMIT:-3}}"
 
 if [[ "$(uname)" != "Darwin" ]]; then
   echo "lol-limiter only works on macOS (it needs launchd + osascript)." >&2
@@ -49,7 +60,14 @@ LCU_LOCKFILE="$APP_BUNDLE/Contents/LoL/lockfile"
 
 mkdir -p "$BASE"
 cp "$SCRIPT_SRC" "$BASE/lol-limiter.sh"
-chmod +x "$BASE/lol-limiter.sh"
+cp "$OVERRIDE_SCRIPT_SRC" "$BASE/lol-limiter-override.sh"
+cp "$OVERRIDE_DIALOG_SRC" "$BASE/override-dialog.js"
+chmod +x "$BASE/lol-limiter.sh" "$BASE/lol-limiter-override.sh"
+
+# Never overwrite an existing passage — it's meant to be user-edited.
+if [ ! -f "$BASE/override-passage.txt" ]; then
+  cp "$OVERRIDE_PASSAGE_SRC" "$BASE/override-passage.txt"
+fi
 
 cat > "$BASE/config.sh" <<EOF
 # lol-limiter config — edit and it takes effect on the next poll (~5s).
@@ -58,7 +76,7 @@ LCU_LOCKFILE="$LCU_LOCKFILE"
 EOF
 
 if [ ! -f "$BASE/state.json" ]; then
-  jq -n --arg d "$(date +%F)" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false}' > "$BASE/state.json"
+  jq -n --arg d "$(date +%F)" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false, bonusGames:0}' > "$BASE/state.json"
 fi
 
 # Unload any existing agent before (re)installing.
@@ -79,4 +97,6 @@ echo "  State/log:    $BASE"
 echo ""
 echo "It's running now, polling every 5s. To change the limit, edit"
 echo "  $BASE/config.sh"
+echo "To override the limit by one game (types a passage back exactly):"
+echo "  $BASE/lol-limiter-override.sh"
 echo "To uninstall: ./uninstall.sh"

@@ -34,13 +34,15 @@ log() {
 
 today=$(date +%F)
 
+init_state='{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false, bonusGames:0}'
+
 if [ ! -f "$STATE" ]; then
-  jq -n --arg d "$today" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false}' > "$STATE"
+  jq -n --arg d "$today" "$init_state" > "$STATE"
 fi
 
 state_date=$(jq -r '.date' "$STATE")
 if [ "$state_date" != "$today" ]; then
-  jq -n --arg d "$today" '{date:$d, gameIds:[], count:0, locked:false, lastPhase:"None", wasRunningWhileLocked:false}' > "$STATE"
+  jq -n --arg d "$today" "$init_state" > "$STATE"
   log "New day ($today) — counters reset."
 fi
 
@@ -61,6 +63,8 @@ kill_all_league() {
 }
 
 locked=$(jq -r '.locked' "$STATE")
+bonus_games=$(jq -r '.bonusGames // 0' "$STATE")
+effective_limit=$((DAILY_LIMIT + bonus_games))
 
 if [ "$locked" = "true" ]; then
   if any_league_running; then
@@ -68,7 +72,7 @@ if [ "$locked" = "true" ]; then
     kill_all_league
     if [ "$was_notified" != "true" ]; then
       log "Relaunch attempt blocked while locked."
-      osascript -e "display dialog \"Nope — you're locked out for the rest of today ($DAILY_LIMIT/$DAILY_LIMIT games played).\n\nIt was closed again automatically. Try again tomorrow.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\" with icon caution" >/dev/null 2>&1
+      osascript -e "display dialog \"Nope — you're locked out for the rest of today ($effective_limit/$effective_limit games played).\n\nIt was closed again automatically. Try again tomorrow, or run the override script for one more game.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\" with icon caution" >/dev/null 2>&1
       write_state '.wasRunningWhileLocked = true'
     fi
   else
@@ -94,7 +98,7 @@ if [ "$phase" = "InProgress" ] || [ "$phase" = "GameStart" ]; then
     already_seen=$(jq --arg gid "$game_id" '.gameIds | index($gid) != null' "$STATE")
     if [ "$already_seen" != "true" ]; then
       write_state --arg gid "$game_id" '.gameIds += [$gid] | .count += 1'
-      log "New match detected (gameId=$game_id). Count now $(jq -r '.count' "$STATE")/$DAILY_LIMIT."
+      log "New match detected (gameId=$game_id). Count now $(jq -r '.count' "$STATE")/$effective_limit."
     fi
   fi
 fi
@@ -104,11 +108,11 @@ case "$last_phase" in
     case "$phase" in
       EndOfGame|None|Lobby)
         count=$(jq -r '.count' "$STATE")
-        if [ "$count" -ge "$DAILY_LIMIT" ]; then
-          log "Match #$count ended — hit daily limit. Killing client and locking."
+        if [ "$count" -ge "$effective_limit" ]; then
+          log "Match #$count ended — hit daily limit ($effective_limit). Killing client and locking."
           kill_all_league
           write_state '.locked = true | .wasRunningWhileLocked = true'
-          osascript -e "display dialog \"You've played $DAILY_LIMIT games today.\n\nRiot Client and League have been closed and are locked until midnight.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\" with icon caution" >/dev/null 2>&1
+          osascript -e "display dialog \"You've played $effective_limit games today.\n\nRiot Client and League have been closed and are locked until midnight.\" with title \"League Limiter\" buttons {\"OK\"} default button \"OK\" with icon caution" >/dev/null 2>&1
         fi
         ;;
     esac
