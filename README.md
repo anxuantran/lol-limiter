@@ -1,7 +1,4 @@
 # lol-limiter
-<p align="center">
-  <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
-</p>
 
 <p align="center">
   <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
@@ -37,8 +34,19 @@ The lock clears automatically at midnight (local time).
 
 ## Install
 
+No git clone needed — download and run the installer directly:
+
 ```
-git clone <this-repo-url>
+curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash
+curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash -s -- 5   # custom limit
+```
+
+It downloads the repo to a temp dir, runs `install.sh`, and cleans up after
+itself. If you'd rather clone the repo yourself first (e.g. to read the
+scripts before running them):
+
+```
+git clone https://github.com/anxuantran/lol-limiter.git
 cd lol-limiter
 ./install.sh          # defaults to a 3-game daily limit
 ./install.sh 5         # or set your own limit
