@@ -13,6 +13,8 @@
     <integer>5</integer>
     <key>RunAtLoad</key>
     <true/>
+    <key>AbandonProcessGroup</key>
+    <true/>
     <key>StandardOutPath</key>
     <string>__BASE_PATH__/launchd.out.log</string>
     <key>StandardErrorPath</key>
