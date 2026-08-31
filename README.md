@@ -1,0 +1,72 @@
+# lol-limiter
+
+A macOS tool that caps how many League of Legends matches you can play in a
+day. Once you hit the limit, it closes Riot Client + League Client + the
+game, and locks out relaunching until midnight.
+
+Not affiliated with Riot Games. Doesn't touch Riot's servers or your account
+— it only talks to `127.0.0.1`, the same local API the League Client itself
+uses.
+
+## How it works
+
+The League Client runs a local REST API (the "LCU API") on `127.0.0.1`,
+authenticated via a lockfile at
+`/Applications/League of Legends.app/Contents/LoL/lockfile`. A background
+agent polls it every 5 seconds and reads the current match's `gameId`.
+
+Each **distinct** `gameId` seen counts as one game. If your client crashes
+mid-match and you reconnect, the League server hands you back the *same*
+`gameId` — so a crash-reconnect never costs you an extra game. A genuinely
+new match always gets a new one.
+
+When the game that pushes you over the limit ends, the agent:
+1. Kills Riot Client, League Client, and the game process.
+2. Locks — any further relaunch attempt gets killed again within ~5s, so you
+   can't get far enough to queue for another game.
+3. Shows a confirmation dialog.
+
+The lock clears automatically at midnight (local time).
+
+## Install
+
+```
+git clone <this-repo-url>
+cd lol-limiter
+./install.sh          # defaults to a 3-game daily limit
+./install.sh 5         # or set your own limit
+```
+
+Requires macOS + [jq](https://jqlang.org) (installed automatically via
+Homebrew if missing).
+
+## Changing the limit
+
+Edit `~/Library/Application Support/lol-limiter/config.sh`:
+
+```sh
+DAILY_LIMIT=3
+LCU_LOCKFILE="/Applications/League of Legends.app/Contents/LoL/lockfile"
+```
+
+Changes take effect on the next poll (within ~5s) — no reinstall needed.
+
+## Uninstall
+
+```
+./uninstall.sh          # removes the background agent
+./uninstall.sh --purge  # also deletes state/config/logs
+```
+
+## Notes
+
+- Only checked on stock macOS installs of League. If yours lives somewhere
+  other than `/Applications/League of Legends.app`, `install.sh` will warn
+  you and you can fix the path in `config.sh`.
+- State (today's game count, lock status) lives in
+  `~/Library/Application Support/lol-limiter/state.json`. Logs are in the
+  same directory (`limiter.log`, `launchd.out.log`, `launchd.err.log`).
+- This is a self-imposed limiter, not a security boundary — anyone willing
+  to edit `state.json` or unload the launchd agent
+  (`launchctl bootout gui/$(id -u)/com.lol-limiter.agent`) can bypass it.
+  It's friction against "just one more game," not a lock you can't pick.
