@@ -4,6 +4,8 @@
   <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
 </p>
 
+<p align="center"><i>“The value you receive from a pursuit is often proportional to the energy invested”</i></p>
+
 A macOS tool that caps how many League of Legends matches you can play in a
 day. Once you hit the limit, it closes Riot Client + League Client + the
 game, and locks out relaunching until midnight.
@@ -33,7 +35,10 @@ When the game that pushes you over the limit ends, the agent:
 The lock clears automatically at midnight (local time).
 
 ## Install
+### Windows
+You have bigger problems than League my friend.
 
+### MacOS
 No git clone needed — download and run the installer directly:
 
 ```
