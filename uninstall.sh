@@ -12,6 +12,12 @@ if launchctl print "gui/$(id -u)/com.lol-limiter.agent" >/dev/null 2>&1; then
 fi
 rm -f "$LAUNCH_AGENT"
 
+# Clean up any in-flight helper processes (countdown menu bar item, passage
+# prompt) so nothing lingers after the agent that would normally manage them
+# is gone.
+pkill -f "$BASE/override-countdown.js" 2>/dev/null || true
+pkill -f "$BASE/override-dialog.js" 2>/dev/null || true
+
 echo "launchd agent removed."
 
 if [[ "${1:-}" == "--purge" ]]; then

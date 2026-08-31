@@ -12,6 +12,7 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT_SRC="$REPO_DIR/bin/lol-limiter.sh"
 OVERRIDE_SCRIPT_SRC="$REPO_DIR/bin/lol-limiter-override.sh"
 OVERRIDE_DIALOG_SRC="$REPO_DIR/bin/override-dialog.js"
+OVERRIDE_COUNTDOWN_SRC="$REPO_DIR/bin/override-countdown.js"
 OVERRIDE_PASSAGE_SRC="$REPO_DIR/override-passage.txt"
 PLIST_TEMPLATE="$REPO_DIR/com.lol-limiter.plist.template"
 
@@ -62,6 +63,7 @@ mkdir -p "$BASE"
 cp "$SCRIPT_SRC" "$BASE/lol-limiter.sh"
 cp "$OVERRIDE_SCRIPT_SRC" "$BASE/lol-limiter-override.sh"
 cp "$OVERRIDE_DIALOG_SRC" "$BASE/override-dialog.js"
+cp "$OVERRIDE_COUNTDOWN_SRC" "$BASE/override-countdown.js"
 chmod +x "$BASE/lol-limiter.sh" "$BASE/lol-limiter-override.sh"
 
 # Never overwrite an existing passage — it's meant to be user-edited.
