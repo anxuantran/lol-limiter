@@ -10,12 +10,17 @@ ObjC.import('Cocoa')
 function run(argv) {
   var passage = argv[0] || ""
 
-  // Force to the front — osascript isn't a normal foreground app, so
-  // without this the alert can open behind other windows, unnoticed. This
-  // is the standard JXA idiom for it (equivalent to AppleScript's
-  // `tell me to activate`), not the raw NSRunningApplication/NSApplication
-  // calls used before — those left the window frontmost but not key,
-  // which is why it couldn't take keyboard focus.
+  // Bare `osascript` defaults to NSApplicationActivationPolicyProhibited —
+  // a tier that can draw windows but can NEVER become the key/active app,
+  // not even from a real click. That's what was actually blocking keyboard
+  // input, not focus-stealing prevention. Accessory is the same policy
+  // override-countdown.js already uses for the menu bar item, and (unlike
+  // Prohibited) it's allowed to become key.
+  var app = $.NSApplication.sharedApplication
+  app.setActivationPolicy($.NSApplicationActivationPolicyAccessory)
+
+  // Best-effort foregrounding on top of that — may or may not be honored
+  // depending on what else has focus, but doesn't hurt.
   var se = Application.currentApplication()
   se.includeStandardAdditions = true
   se.activate()
