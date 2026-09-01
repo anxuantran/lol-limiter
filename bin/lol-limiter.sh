@@ -9,7 +9,7 @@
 # process, and lock out relaunching until the date rolls over.
 #
 # Trying to relaunch while locked shows a dialog with an "Override" option.
-# Clicking it starts a wait (OVERRIDE_WAIT_SECONDS, default 5 min) during
+# Clicking it starts a wait (OVERRIDE_WAIT_SECONDS, default 15 min) during
 # which relaunch attempts keep getting killed as normal. Once the wait
 # elapses, a passage-entry prompt appears on its own; typing it back exactly
 # grants one bonus game and clears the lock.
@@ -34,7 +34,7 @@ DAILY_LIMIT="${DAILY_LIMIT:-3}"
 LCU_LOCKFILE="${LCU_LOCKFILE:-/Applications/League of Legends.app/Contents/LoL/lockfile}"
 RIOT_PATTERN="${RIOT_PATTERN:-/Riot Games/Riot Client.app/}"
 LOL_PATTERN="${LOL_PATTERN:-/League of Legends.app/}"
-OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-300}"
+OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-900}"
 
 # shellcheck source=common.sh
 source "$BASE/common.sh"

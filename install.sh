@@ -79,7 +79,7 @@ if [ ! -f "$BASE/config.sh" ]; then
 DAILY_LIMIT=$DAILY_LIMIT
 LCU_LOCKFILE="$LCU_LOCKFILE"
 # Wait after clicking "Override" before the passage prompt appears (seconds).
-OVERRIDE_WAIT_SECONDS=300
+OVERRIDE_WAIT_SECONDS=900
 EOF
 else
   # Preserve any hand-edited config, just make sure DAILY_LIMIT reflects

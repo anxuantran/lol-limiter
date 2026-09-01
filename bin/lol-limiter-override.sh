@@ -21,7 +21,7 @@ source "$BASE/common.sh"
 
 # shellcheck source=/dev/null
 [ -f "$CONFIG" ] && source "$CONFIG"
-OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-300}"
+OVERRIDE_WAIT_SECONDS="${OVERRIDE_WAIT_SECONDS:-900}"
 
 now=$(date +%s)
 pending=$(jq -r '.overridePendingSince // 0' "$STATE")
