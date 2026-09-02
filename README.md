@@ -42,8 +42,8 @@ You have bigger problems than League my friend.
 No git clone needed — download and run the installer directly:
 
 ```
-curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash
-curl -fsSL https://raw.githubusercontent.com/anxuantran/lol-limiter/main/install-remote.sh | bash -s -- 3   # custom limit
+curl -fsSL https://raw.githubusercontent.com/anxuantran/zhonyas/main/install-remote.sh | bash
+curl -fsSL https://raw.githubusercontent.com/anxuantran/zhonyas/main/install-remote.sh | bash -s -- 3   # custom limit
 ```
 
 It downloads the repo to a temp dir, runs `install.sh`, and cleans up after
@@ -51,8 +51,8 @@ itself. If you'd rather clone the repo yourself first (e.g. to read the
 scripts before running them):
 
 ```
-git clone https://github.com/anxuantran/lol-limiter.git
-cd lol-limiter
+git clone https://github.com/anxuantran/zhonyas.git
+cd zhonyas
 ./install.sh          # defaults to a 3-game daily limit
 ./install.sh 5         # or set your own limit
 ```
