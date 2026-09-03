@@ -1,4 +1,4 @@
-# lol-limiter
+# Zhonya's
 
 <p align="center">
   <img width="378" height="498" alt="image" src="https://github.com/user-attachments/assets/85059810-90e7-4513-b9f8-2aa8e822901a" />
